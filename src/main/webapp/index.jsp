@@ -1,12 +1,15 @@
+
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <!DOCTYPE html>
 <html>
 <head>
-    <title>JSP - Hello World</title>
+    <title>Menu</title>
 </head>
 <body>
-<h3><%= "Выбирите нужное действие:" %></h3>
-<br/>
-<p>/currencies - Получить список валют</p>
+  <h3>МЕНЮ ВАЛЮТНЫХ ОПЕРАЦИЙ</h3>
+  <form method="get" action="ListCurrencies">
+    <input type = "submit" value="Получить список валют">
+  </form>
 </body>
+
 </html>
