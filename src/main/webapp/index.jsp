@@ -7,11 +7,13 @@
 </head>
 <body>
   <h3>МЕНЮ ВАЛЮТНЫХ ОПЕРАЦИЙ</h3>
+
+  <h3>Получить список валют</h3>
   <form method="get" action="listCurrencies">
     <input type = "submit" value="Получить список валют">
   </form>
-    <h3>Получение данных по конкретной валюте:</h3>
 
+    <h3>Получение данных по конкретной валюте:</h3>
 <form method="get" action="currency">
   <table>
     <tr>
