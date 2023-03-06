@@ -29,7 +29,7 @@ public class Currency extends HttpServlet {
     public ParamsCurrency selectCurrencyParams(String getNameCurrency) {
         try {
             Class.forName("org.sqlite.JDBC");
-            connection = DriverManager.getConnection("jdbc:sqlite:C:\\Projects\\JavaProject\\CurrencyExchange\\CurrencyExchangeDatabase.db");
+            connection = DriverManager.getConnection("jdbc:sqlite:/Users/dgeyms/Yandex.Disk.localized/CurrencyExchange/src/CurrencyExchangeDatabase.db");
             System.out.println("Connect YES");
 
             String sql = "SELECT * FROM Currencies WHERE Code = ?";
@@ -40,7 +40,7 @@ public class Currency extends HttpServlet {
             int id = resSet.getInt(1);
             String code = resSet.getString(2);
             String fullName = resSet.getString(3);
-            char sing = resSet.getString(4).charAt(0);
+            String sing = resSet.getString(4);
 
             return new ParamsCurrency(id, code, fullName, sing);
         } catch (Exception e) {

@@ -2,24 +2,42 @@ package params;
 
 public class ParamsCurrency {
     private int id;
-    private String name;
     private String code;
-    private char sign;
+    private String fullName;
+    private String sign;
 
-    public ParamsCurrency(int id, String name, String code, char sign) {
+    public ParamsCurrency(int id, String code, String fullName, String sign) {
         this.id = id;
-        this.name = name;
         this.code = code;
+        this.fullName = fullName;
         this.sign = sign;
+    }
+
+    public ParamsCurrency(String code, String fullName, String sign) {
+        this.code = code;
+        this.fullName = fullName;
+        this.sign = sign;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public String getFullName() {
+        return fullName;
+    }
+
+    public String getSign() {
+        return sign;
     }
 
     @Override
     public String toString() {
         return "ParamsCurrency{" +
                 "id=" + id +
-                ", name='" + name + '\'' +
                 ", code='" + code + '\'' +
-                ", sign=" + sign +
+                ", fullName='" + fullName + '\'' +
+                ", sign='" + sign + '\'' +
                 '}';
     }
 }
