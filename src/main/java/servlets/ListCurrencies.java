@@ -2,11 +2,11 @@ package servlets;
 /*
  *Получение списка валют
  */
-
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.json.JSONObject;
 import params.ListCurrencyParams;
 
 import java.io.IOException;
@@ -17,35 +17,46 @@ import java.util.ArrayList;
 @WebServlet("/listCurrencies")
 public class ListCurrencies extends HttpServlet {
     public Connection connection;
-    public Statement stmt;
-    public ResultSet resSet;
-
     // Получение данных
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        response.setContentType("text/html");
+        response.setContentType("application/json");
         response.setCharacterEncoding("utf-8");
         PrintWriter out = response.getWriter();
-        out.print("СПИСОК ВАЛЮТ" + "<br/>");
+        out.println("СПИСОК ВАЛЮТ");
+
+        JSONObject json = new JSONObject();
+        JSONObject listCurrenciesJSON = new JSONObject();
 
         ArrayList<ListCurrencyParams> currencies = selectListCurrencyParams();
         for (ListCurrencyParams c : currencies){
-            out.println(c + "<br/>");
+            listCurrenciesJSON.put("id", c.getId());
+            listCurrenciesJSON.put("name", c.getFullName());
+            listCurrenciesJSON.put("code", c.getCode());
+            listCurrenciesJSON.put("sing", c.getSing());
+
+            json.put("Currency", listCurrenciesJSON);
+            String jsonString = json.toString(4);
+            out.println(jsonString.toString());
+
         }
-        out.close();
+
     }
 
     // Получаем данные из таблицы Currencies
     public ArrayList<ListCurrencyParams> selectListCurrencyParams() {
+        Connection connection = null;
+        Statement stmt = null;
+        ResultSet resSet = null;
 
         ArrayList<ListCurrencyParams> currencies = new ArrayList<>();
         try {
             Class.forName("org.sqlite.JDBC"); //здесь мы загружаем файл класса драйвера в память во время выполнения
-            connection = DriverManager.getConnection("jdbc:sqlite:/Users/dgeyms/Yandex.Disk.localized/CurrencyExchange/src/CurrencyExchangeDatabase.db");
+            connection = DriverManager.getConnection("jdbc:sqlite::resource:CurrencyExchangeDatabase.db");
             System.out.println("Connect YES");
 
-            Statement stmt = connection.createStatement(); // создаем заявление
+            stmt = connection.createStatement(); // создаем заявление
 
-            ResultSet resSet = stmt.executeQuery("SELECT * FROM Currencies");
+           resSet = stmt.executeQuery("SELECT * FROM Currencies");
             while (resSet.next()) {
                 int id = resSet.getInt(1);
                 String code = resSet.getString(2);
@@ -60,7 +71,21 @@ public class ListCurrencies extends HttpServlet {
         } catch (SQLException e) {
             e.printStackTrace(); // обработка ошибок  DriverManager.getConnection
             System.out.println("Ошибка SQL !");
+        } finally {
+            try {
+                if (resSet != null) {
+                    resSet.close();
+                }
+                if (stmt!= null) {
+                    stmt.close();
+                }
+                if (connection != null) {
+                    connection.close();
+                }
+            } catch (Exception e) {
+                System.out.println("Error while closing resources: " + e.getMessage());
         }
+    }
         return currencies;
     }
 }

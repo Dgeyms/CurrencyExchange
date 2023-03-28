@@ -15,15 +15,20 @@ public class ListCurrencyParams {
         this.fullName = fullName;
         this.sing = sing;
     }
-    // Выводим информацию по продукту
 
-    @Override
-    public String toString() {
-        return "servlets.Currency{" +
-                "id=" + id +
-                ", code='" + code + '\'' +
-                ", fullName='" + fullName + '\'' +
-                ", sing=" + sing +
-                '}';
+    public int getId() {
+        return id;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public String getFullName() {
+        return fullName;
+    }
+
+    public String getSing() {
+        return sing;
     }
 }

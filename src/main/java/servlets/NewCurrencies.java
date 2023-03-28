@@ -1,9 +1,13 @@
 package servlets;
+/*
+* Добавление новой валюты в базу данных
+ */
 
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.json.JSONObject;
 import params.ParamsCurrency;
 
 import java.io.IOException;
@@ -19,25 +23,34 @@ public class NewCurrencies extends HttpServlet {
         String getSingCurrency = request.getParameter("addSingCurrencies");
         addCurrenciesDataBase(new ParamsCurrency(getCodeCurrency, getFullNameCurrency, getSingCurrency));
 
-        response.setContentType("text/html");
+        response.setContentType("application/json");
         response.setCharacterEncoding("utf-8");
         PrintWriter out = response.getWriter();
-        out.print("ВАЛЮТА УСПЕШНО ДОБАВЛЕНА" + "<br/>");
+        out.println("ВАЛЮТА УСПЕШНО ДОБАВЛЕНА");
 
         Currency currency = new Currency();
         ParamsCurrency selectCurrencyParams = currency.selectCurrencyParams(getCodeCurrency);
-        out.print(selectCurrencyParams.toString());
-        System.out.println(selectCurrencyParams.toString());
+
+        JSONObject currencyJSON = new JSONObject();
+
+        currencyJSON.put("id", selectCurrencyParams.getId());
+        currencyJSON.put("code", selectCurrencyParams.getCode());
+        currencyJSON.put("fullName", selectCurrencyParams.getFullName());
+        currencyJSON.put("sign", selectCurrencyParams.getSign());
+
+        out.println(currencyJSON.toString(4));
     }
 
     public void addCurrenciesDataBase(ParamsCurrency paramsCurrency){
+        Connection connection = null;
+        PreparedStatement statement = null;
         try{
             Class.forName("org.sqlite.JDBC");
-            connection = DriverManager.getConnection("jdbc:sqlite:/Users/dgeyms/Yandex.Disk.localized/CurrencyExchange/src/CurrencyExchangeDatabase.db");
+            connection = DriverManager.getConnection("jdbc:sqlite::resource:CurrencyExchangeDatabase.db");
             System.out.println("Connect YES");
 
             String sql = "INSERT INTO Currencies (Code, FullName, Sing) VALUES(?, ?, ?)";
-            PreparedStatement statement = connection.prepareStatement(sql);
+            statement = connection.prepareStatement(sql);
             statement.setString(1, paramsCurrency.getCode());
             statement.setString(2, paramsCurrency.getFullName());
             statement.setString(3, paramsCurrency.getSign());
@@ -49,7 +62,6 @@ public class NewCurrencies extends HttpServlet {
                 System.out.println("Insert Failed");
 
             statement.close();
-            connection.close();
             System.out.println("Отключение от СУБД выполнено.");
         } catch (ClassNotFoundException e) {
             e.printStackTrace(); // обработка ошибки  Class.forName
@@ -57,6 +69,17 @@ public class NewCurrencies extends HttpServlet {
         } catch (SQLException e) {
             e.printStackTrace(); // обработка ошибок  DriverManager.getConnection
             System.out.println("Ошибка SQL!");
+        } finally {
+            try {
+                if (statement != null) {
+                    statement.close();
+                }
+                if (connection != null) {
+                    connection.close();
+                }
+            } catch (Exception e) {
+                System.out.println("Error while closing resources: " + e.getMessage());
+            }
         }
     }
 

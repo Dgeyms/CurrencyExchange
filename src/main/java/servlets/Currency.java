@@ -1,14 +1,21 @@
 package servlets;
+/*
+* Получение данных по конкретной валюте
+ */
 
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.json.JSONObject;
 import params.ParamsCurrency;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 
 
 @WebServlet("/currency")
@@ -18,25 +25,37 @@ public class Currency extends HttpServlet {
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String getNameCurrency = request.getParameter("nameCurrency");
 
-        response.setContentType("text/html");
+        response.setContentType("application/json");
         response.setCharacterEncoding("utf-8");
         PrintWriter out = response.getWriter();
-        out.print("ДАННЫЕ ПО ВАЛЮТЕ" + "<br/>");
+        out.println("ДАННЫЕ ПО ВАЛЮТЕ");
+
         ParamsCurrency selectCurrencyParams = selectCurrencyParams(getNameCurrency);
-        out.print(selectCurrencyParams.toString());
+        JSONObject currencyJSON = new JSONObject();
+        currencyJSON.put("id", selectCurrencyParams.getId());
+        currencyJSON.put("code", selectCurrencyParams.getCode());
+        currencyJSON.put("fullName", selectCurrencyParams.getFullName());
+        currencyJSON.put("sign", selectCurrencyParams.getSign());
+
+        String jsonString = currencyJSON.toString(4);
+
+        out.print(jsonString);
     }
 
     public ParamsCurrency selectCurrencyParams(String getNameCurrency) {
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resSet = null;
         try {
             Class.forName("org.sqlite.JDBC");
-            connection = DriverManager.getConnection("jdbc:sqlite:/Users/dgeyms/Yandex.Disk.localized/CurrencyExchange/src/CurrencyExchangeDatabase.db");
+            connection = DriverManager.getConnection("jdbc:sqlite::resource:CurrencyExchangeDatabase.db");
             System.out.println("Connect YES");
 
             String sql = "SELECT * FROM Currencies WHERE Code = ?";
-            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setString(1, getNameCurrency);
 
-            ResultSet resSet = preparedStatement.executeQuery();
+            resSet = preparedStatement.executeQuery();
             int id = resSet.getInt(1);
             String code = resSet.getString(2);
             String fullName = resSet.getString(3);
@@ -45,6 +64,21 @@ public class Currency extends HttpServlet {
             return new ParamsCurrency(id, code, fullName, sing);
         } catch (Exception e) {
             System.out.println("Connect No");
+        } finally {
+            try {
+                if (resSet != null) {
+                    resSet.close();
+                }
+                if (preparedStatement != null) {
+                    preparedStatement.close();
+                }
+                if (connection != null) {
+                    connection.close();
+                }
+            } catch (Exception e) {
+                System.out.println("Error while closing resources: " + e.getMessage());
+            }
+
         }
         return null;
     }

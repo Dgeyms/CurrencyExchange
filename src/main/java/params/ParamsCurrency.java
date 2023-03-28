@@ -1,4 +1,7 @@
 package params;
+/*
+ * Данные по конкретной валюте
+ */
 
 public class ParamsCurrency {
     private int id;
@@ -19,6 +22,9 @@ public class ParamsCurrency {
         this.sign = sign;
     }
 
+    public int getId() {
+        return id;
+    }
     public String getCode() {
         return code;
     }
@@ -31,13 +37,5 @@ public class ParamsCurrency {
         return sign;
     }
 
-    @Override
-    public String toString() {
-        return "ParamsCurrency{" +
-                "id=" + id +
-                ", code='" + code + '\'' +
-                ", fullName='" + fullName + '\'' +
-                ", sign='" + sign + '\'' +
-                '}';
-    }
+
 }
