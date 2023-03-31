@@ -7,48 +7,107 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.json.JSONObject;
+import params.ParamsCurrency;
 
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
+import java.io.PrintWriter;
+import java.sql.*;
 
 @WebServlet("/exchangeRate/*")
 public class ExchangeRateTwoCurrencies extends HttpServlet {
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String baseCurrency = request.getParameter("baseCurrency");
+        String targetCurrency = request.getParameter("targetCurrency");
 
-        String currencyPair = request.getPathInfo().substring(1); // убираем первый символ "/"
-        if (currencyPair.length() != 6){
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Указан не корректный код. Правильно (USDEUR");
+        int idBaseCurrency = getCurrencyId(baseCurrency);
+        int idTargetCurrency = getCurrencyId(targetCurrency);
+
+        response.setContentType("application/json");
+        response.setCharacterEncoding("utf-8");
+        PrintWriter out = response.getWriter();
+        out.println("ОБМЕННЫЙ КУРС ДВУХ ВАЛЮТ");
+        out.println("---------------------------");
+
+        double exchangeRateTwoCurrencies = receivingSpecificCurrencyExchange(idBaseCurrency, idTargetCurrency);
+        if (exchangeRateTwoCurrencies == -1) {
+            out.println("Exchange rate not found");
             return;
         }
 
-        String BaseCurrency = currencyPair.substring(0, 3);
-        String TargetCurrency = currencyPair.substring(3, 6);
+        Currency currency = new Currency();
+        ParamsCurrency paramsCurrencyBase = currency.selectCurrencyParams(baseCurrency);
+        ParamsCurrency paramsCurrencyTarget = currency.selectCurrencyParams(targetCurrency);
 
-        try {
-            receivingSpecificCurrencyExchange(BaseCurrency, TargetCurrency);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
+        JSONObject jsonParamsCurrencyBase = new JSONObject();
+        jsonParamsCurrencyBase.put("id", paramsCurrencyBase.getId());
+        jsonParamsCurrencyBase.put("name", paramsCurrencyBase.getFullName());
+        jsonParamsCurrencyBase.put("code", paramsCurrencyBase.getCode());
+        jsonParamsCurrencyBase.put("sing", paramsCurrencyBase.getSign());
+
+        JSONObject jsonParamsCurrencyTarget = new JSONObject();
+        jsonParamsCurrencyTarget.put("id", paramsCurrencyTarget.getId());
+        jsonParamsCurrencyTarget.put("name", paramsCurrencyTarget.getFullName());
+        jsonParamsCurrencyTarget.put("code", paramsCurrencyTarget.getCode());
+        jsonParamsCurrencyTarget.put("sing", paramsCurrencyTarget.getSign());
+
+        JSONObject jsonId = new JSONObject();
+        jsonId.put("baseCurrency", jsonParamsCurrencyBase);
+        jsonId.put("targetCurrency", jsonParamsCurrencyTarget);
+        jsonId.put("rate", exchangeRateTwoCurrencies);
+
+        String json = jsonId.toString(4);
+        out.println(json);
+        out.println("---------------------------");
 
     }
 
-   private void receivingSpecificCurrencyExchange(String BaseCurrency, String TargetCurrency ) throws SQLException, ClassNotFoundException {
+   public double receivingSpecificCurrencyExchange(int idBaseCurrency, int idTargetCurrency ){
        Connection connection = null;
-
+       ResultSet resSet = null;
+       PreparedStatement preparedStatement = null;
        try {
-           Class.forName("org.sqLite.JDBC");
+           Class.forName("org.sqlite.JDBC");
            connection = DriverManager.getConnection("jdbc:sqlite::resource:CurrencyExchangeDatabase.db");
 
-           String sql = "SELECT * FROM  ";
+           String sql = "SELECT Rate FROM ExchangeRates WHERE BaseCurrencyId = ? AND TargetCurrencyId = ?";
+           preparedStatement = connection.prepareStatement(sql);
+           preparedStatement.setInt(1, idBaseCurrency);
+           preparedStatement.setInt(2, idTargetCurrency);
+           resSet = preparedStatement.executeQuery();
 
+           if (resSet.next()) {
+               double exchangeRate = resSet.getDouble(1);
+               return exchangeRate;
+           }
+
+       } catch (ClassNotFoundException e) {
+           e.printStackTrace(); // обработка ошибки  Class.forName
+           System.out.println("JDBC драйвер для СУБД не найден!");
+       } catch (SQLException e) {
+           e.printStackTrace(); // обработка ошибок  DriverManager.getConnection
+           System.out.println("Ошибка SQL!");
        } finally {
-           connection.close();
+           try {
+               if (resSet != null) {
+                   resSet.close();
+               }
+               if (preparedStatement != null) {
+                   preparedStatement.close();
+               }
+               if (connection != null) {
+                   connection.close();
+               }
+           } catch (SQLException e) {
+               System.out.println("Error while closing resources: " + e.getMessage());
+           }
        }
-
-
+       return -1;
+   }
+   private int getCurrencyId(String baseCurrency){
+        Currency currency = new Currency();
+       ParamsCurrency paramsCurrency = currency.selectCurrencyParams(baseCurrency);
+        int idCurrency = paramsCurrency.getId();
+        return idCurrency;
    }
 }

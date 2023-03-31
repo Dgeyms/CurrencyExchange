@@ -53,7 +53,7 @@
   </form>
 
   <h3>Получение конкретного обменного курса.</h3>
-  <form method="get" action="/exchangeRate">
+  <form method="get" action="exchangeRate/*">
     <table>
       <tr>
         <td>Введите код первой валюты, в формате (USD)</td>

@@ -60,8 +60,6 @@ public class ExchangeRates extends HttpServlet{
             jsonId.put("targetCurrency", paramTargetJson);
             jsonId.put("rate", c.getRate());
 
-
-            // Конвертируем LinkedHashMap в JSONObject и выводим на печать
             String json = jsonId.toString(4);
             out.println(json);
             out.println("---------------------------");
@@ -76,16 +74,16 @@ public class ExchangeRates extends HttpServlet{
             connection = DriverManager.getConnection("jdbc:sqlite::resource:CurrencyExchangeDatabase.db");
 
             Statement stmt = connection.createStatement();
-            ResultSet resultSet = stmt.executeQuery("SELECT * FROM ExchangeRates");
-            while(resultSet.next()){
-                int id = resultSet.getInt(1);
-                int baseCurrencyId = resultSet.getInt(2);
-                int targetCurrencyId = resultSet.getInt(3);
-                int rate = resultSet.getInt(4);
+            ResultSet resSet = stmt.executeQuery("SELECT * FROM ExchangeRates");
+            while(resSet.next()){
+                int id = resSet.getInt(1);
+                int baseCurrencyId = resSet.getInt(2);
+                int targetCurrencyId = resSet.getInt(3);
+                int rate = resSet.getInt(4);
                 paramsExchangeRates.add(new ParamsExchangeRates(id, baseCurrencyId, targetCurrencyId, rate));
             }
             stmt.close();
-            resultSet.close();
+            resSet.close();
 
         } catch (ClassNotFoundException | SQLException e) {
             throw new RuntimeException("Ошибка при получении списка обменных курсов", e);
