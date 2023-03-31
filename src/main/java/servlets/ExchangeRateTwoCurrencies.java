@@ -20,46 +20,51 @@ public class ExchangeRateTwoCurrencies extends HttpServlet {
         String baseCurrency = request.getParameter("baseCurrency");
         String targetCurrency = request.getParameter("targetCurrency");
 
-        int idBaseCurrency = getCurrencyId(baseCurrency);
-        int idTargetCurrency = getCurrencyId(targetCurrency);
-
+        PrintWriter out = response.getWriter();
         response.setContentType("application/json");
         response.setCharacterEncoding("utf-8");
-        PrintWriter out = response.getWriter();
-        out.println("ОБМЕННЫЙ КУРС ДВУХ ВАЛЮТ");
-        out.println("---------------------------");
 
-        double exchangeRateTwoCurrencies = receivingSpecificCurrencyExchange(idBaseCurrency, idTargetCurrency);
-        if (exchangeRateTwoCurrencies == -1) {
-            out.println("Exchange rate not found");
-            return;
+        if (baseCurrency.matches("[A-Z]{3}") && targetCurrency.matches("[A-Z]{3}")) {
+            int idBaseCurrency = getCurrencyId(baseCurrency);
+            int idTargetCurrency = getCurrencyId(targetCurrency);
+
+
+            out.println("ОБМЕННЫЙ КУРС ДВУХ ВАЛЮТ");
+            out.println("---------------------------");
+
+            double exchangeRateTwoCurrencies = receivingSpecificCurrencyExchange(idBaseCurrency, idTargetCurrency);
+            if (exchangeRateTwoCurrencies == -1) {
+                out.println("Exchange rate not found");
+                return;
+            }
+
+            Currency currency = new Currency();
+            ParamsCurrency paramsCurrencyBase = currency.selectCurrencyParams(baseCurrency);
+            ParamsCurrency paramsCurrencyTarget = currency.selectCurrencyParams(targetCurrency);
+
+            JSONObject jsonParamsCurrencyBase = new JSONObject();
+            jsonParamsCurrencyBase.put("id", paramsCurrencyBase.getId());
+            jsonParamsCurrencyBase.put("name", paramsCurrencyBase.getFullName());
+            jsonParamsCurrencyBase.put("code", paramsCurrencyBase.getCode());
+            jsonParamsCurrencyBase.put("sing", paramsCurrencyBase.getSign());
+
+            JSONObject jsonParamsCurrencyTarget = new JSONObject();
+            jsonParamsCurrencyTarget.put("id", paramsCurrencyTarget.getId());
+            jsonParamsCurrencyTarget.put("name", paramsCurrencyTarget.getFullName());
+            jsonParamsCurrencyTarget.put("code", paramsCurrencyTarget.getCode());
+            jsonParamsCurrencyTarget.put("sing", paramsCurrencyTarget.getSign());
+
+            JSONObject jsonId = new JSONObject();
+            jsonId.put("baseCurrency", jsonParamsCurrencyBase);
+            jsonId.put("targetCurrency", jsonParamsCurrencyTarget);
+            jsonId.put("rate", exchangeRateTwoCurrencies);
+
+            String json = jsonId.toString(4);
+            out.println(json);
+            out.println("---------------------------");
+        } else {
+            out.println("Код валюты неправильный! (Пример правильного кода: USD)");
         }
-
-        Currency currency = new Currency();
-        ParamsCurrency paramsCurrencyBase = currency.selectCurrencyParams(baseCurrency);
-        ParamsCurrency paramsCurrencyTarget = currency.selectCurrencyParams(targetCurrency);
-
-        JSONObject jsonParamsCurrencyBase = new JSONObject();
-        jsonParamsCurrencyBase.put("id", paramsCurrencyBase.getId());
-        jsonParamsCurrencyBase.put("name", paramsCurrencyBase.getFullName());
-        jsonParamsCurrencyBase.put("code", paramsCurrencyBase.getCode());
-        jsonParamsCurrencyBase.put("sing", paramsCurrencyBase.getSign());
-
-        JSONObject jsonParamsCurrencyTarget = new JSONObject();
-        jsonParamsCurrencyTarget.put("id", paramsCurrencyTarget.getId());
-        jsonParamsCurrencyTarget.put("name", paramsCurrencyTarget.getFullName());
-        jsonParamsCurrencyTarget.put("code", paramsCurrencyTarget.getCode());
-        jsonParamsCurrencyTarget.put("sing", paramsCurrencyTarget.getSign());
-
-        JSONObject jsonId = new JSONObject();
-        jsonId.put("baseCurrency", jsonParamsCurrencyBase);
-        jsonId.put("targetCurrency", jsonParamsCurrencyTarget);
-        jsonId.put("rate", exchangeRateTwoCurrencies);
-
-        String json = jsonId.toString(4);
-        out.println(json);
-        out.println("---------------------------");
-
     }
 
    public double receivingSpecificCurrencyExchange(int idBaseCurrency, int idTargetCurrency ){
