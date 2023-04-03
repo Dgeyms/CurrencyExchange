@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.json.JSONObject;
 import params.ParamsCurrency;
+import utility.CurrencyId;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -16,6 +17,7 @@ import java.sql.*;
 
 @WebServlet("/exchangeRate/*")
 public class ExchangeRateTwoCurrencies extends HttpServlet {
+    double exchangeRateTwoCurrencies;
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String baseCurrency = request.getParameter("baseCurrency");
         String targetCurrency = request.getParameter("targetCurrency");
@@ -25,14 +27,14 @@ public class ExchangeRateTwoCurrencies extends HttpServlet {
         response.setCharacterEncoding("utf-8");
 
         if (baseCurrency.matches("[A-Z]{3}") && targetCurrency.matches("[A-Z]{3}")) {
-            int idBaseCurrency = getCurrencyId(baseCurrency);
-            int idTargetCurrency = getCurrencyId(targetCurrency);
-
+            CurrencyId currencyId = new CurrencyId();
+            int idBaseCurrency = currencyId.getCurrencyId(baseCurrency);
+            int idTargetCurrency = currencyId.getCurrencyId(targetCurrency);
 
             out.println("ОБМЕННЫЙ КУРС ДВУХ ВАЛЮТ");
             out.println("---------------------------");
 
-            double exchangeRateTwoCurrencies = receivingSpecificCurrencyExchange(idBaseCurrency, idTargetCurrency);
+            exchangeRateTwoCurrencies = receivingSpecificCurrencyExchange(idBaseCurrency, idTargetCurrency);
             if (exchangeRateTwoCurrencies == -1) {
                 out.println("Exchange rate not found");
                 return;
@@ -108,11 +110,5 @@ public class ExchangeRateTwoCurrencies extends HttpServlet {
            }
        }
        return -1;
-   }
-   private int getCurrencyId(String baseCurrency){
-        Currency currency = new Currency();
-       ParamsCurrency paramsCurrency = currency.selectCurrencyParams(baseCurrency);
-        int idCurrency = paramsCurrency.getId();
-        return idCurrency;
    }
 }

@@ -39,7 +39,6 @@ public class ListCurrencies extends HttpServlet {
             out.println(jsonString.toString());
 
         }
-
     }
 
     // Получаем данные из таблицы Currencies
