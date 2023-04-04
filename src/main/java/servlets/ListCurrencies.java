@@ -23,6 +23,7 @@ public class ListCurrencies extends HttpServlet {
         response.setCharacterEncoding("utf-8");
         PrintWriter out = response.getWriter();
         out.println("СПИСОК ВАЛЮТ");
+        out.println("---------------------------");
 
         JSONObject json = new JSONObject();
         JSONObject listCurrenciesJSON = new JSONObject();
@@ -37,7 +38,6 @@ public class ListCurrencies extends HttpServlet {
             json.put("Currency", listCurrenciesJSON);
             String jsonString = json.toString(4);
             out.println(jsonString.toString());
-
         }
     }
 
@@ -49,11 +49,11 @@ public class ListCurrencies extends HttpServlet {
 
         ArrayList<ListCurrencyParams> currencies = new ArrayList<>();
         try {
-            Class.forName("org.sqlite.JDBC"); //здесь мы загружаем файл класса драйвера в память во время выполнения
+            Class.forName("org.sqlite.JDBC");
             connection = DriverManager.getConnection("jdbc:sqlite::resource:CurrencyExchangeDatabase.db");
             System.out.println("Connect YES");
 
-            stmt = connection.createStatement(); // создаем заявление
+            stmt = connection.createStatement();
 
            resSet = stmt.executeQuery("SELECT * FROM Currencies");
             while (resSet.next()) {

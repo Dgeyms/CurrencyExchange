@@ -17,29 +17,38 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
+import static java.lang.System.out;
+
 
 @WebServlet("/currency")
 public class Currency extends HttpServlet {
-    public Connection connection;
+    private String nameCurrency;
 
+    public String getNameCurrency(String nameCurrency) {
+        return this.nameCurrency = nameCurrency;
+    }
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        String getNameCurrency = request.getParameter("nameCurrency");
+        getNameCurrency(request.getParameter("nameCurrency"));
 
         response.setContentType("application/json");
         response.setCharacterEncoding("utf-8");
         PrintWriter out = response.getWriter();
         out.println("ДАННЫЕ ПО ВАЛЮТЕ");
+        out.println("---------------------------");
 
-        ParamsCurrency selectCurrencyParams = selectCurrencyParams(getNameCurrency);
-        JSONObject currencyJSON = new JSONObject();
-        currencyJSON.put("id", selectCurrencyParams.getId());
-        currencyJSON.put("code", selectCurrencyParams.getCode());
-        currencyJSON.put("fullName", selectCurrencyParams.getFullName());
-        currencyJSON.put("sign", selectCurrencyParams.getSign());
+        if (nameCurrency.matches("[A-Z]{3}")) {
+            ParamsCurrency selectCurrencyParams = selectCurrencyParams(nameCurrency);
+            JSONObject currencyJSON = new JSONObject();
+            currencyJSON.put("id", selectCurrencyParams.getId());
+            currencyJSON.put("code", selectCurrencyParams.getCode());
+            currencyJSON.put("fullName", selectCurrencyParams.getFullName());
+            currencyJSON.put("sign", selectCurrencyParams.getSign());
 
-        String jsonString = currencyJSON.toString(4);
-
-        out.print(jsonString);
+            String jsonString = currencyJSON.toString(4);
+            out.print(jsonString);
+        }else {
+            out.print("Код валюты неправильный! (Пример правильного кода: USD)");
+        }
     }
 
     public ParamsCurrency selectCurrencyParams(String getNameCurrency) {
@@ -49,7 +58,7 @@ public class Currency extends HttpServlet {
         try {
             Class.forName("org.sqlite.JDBC");
             connection = DriverManager.getConnection("jdbc:sqlite::resource:CurrencyExchangeDatabase.db");
-            System.out.println("Connect YES");
+            out.println("Connect YES");
 
             String sql = "SELECT * FROM Currencies WHERE Code = ?";
             preparedStatement = connection.prepareStatement(sql);
@@ -63,7 +72,7 @@ public class Currency extends HttpServlet {
 
             return new ParamsCurrency(id, code, fullName, sing);
         } catch (Exception e) {
-            System.out.println("Connect No");
+            out.println("Connect No");
         } finally {
             try {
                 if (resSet != null) {
@@ -76,7 +85,7 @@ public class Currency extends HttpServlet {
                     connection.close();
                 }
             } catch (Exception e) {
-                System.out.println("Error while closing resources: " + e.getMessage());
+                out.println("Error while closing resources: " + e.getMessage());
             }
 
         }

@@ -4,9 +4,9 @@ public class ParamsExchangeRates {
     private int id;
     private int baseCurrencyId ;
     private int targetCurrencyId ;
-    private int rate ;
+    private double rate ;
 
-    public ParamsExchangeRates(int id, int baseCurrencyId, int targetCurrencyId, int rate) {
+    public ParamsExchangeRates(int id, int baseCurrencyId, int targetCurrencyId, double rate) {
         this.id = id;
         this.baseCurrencyId = baseCurrencyId;
         this.targetCurrencyId = targetCurrencyId;
@@ -25,7 +25,7 @@ public class ParamsExchangeRates {
         return targetCurrencyId;
     }
 
-    public int getRate() {
+    public double getRate() {
         return rate;
     }
 }

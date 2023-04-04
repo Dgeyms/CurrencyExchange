@@ -23,7 +23,7 @@ public class ExchangeRates extends HttpServlet{
     private int id;
     private ParamsCurrency paramsBase;
     private ParamsCurrency paramsTarget;
-    private int rate;
+    private double rate;
 
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         response.setContentType("application/json");
@@ -79,7 +79,7 @@ public class ExchangeRates extends HttpServlet{
                 int id = resSet.getInt(1);
                 int baseCurrencyId = resSet.getInt(2);
                 int targetCurrencyId = resSet.getInt(3);
-                int rate = resSet.getInt(4);
+                double rate = resSet.getDouble(4);
                 paramsExchangeRates.add(new ParamsExchangeRates(id, baseCurrencyId, targetCurrencyId, rate));
             }
             stmt.close();
