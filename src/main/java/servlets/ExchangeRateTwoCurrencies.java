@@ -1,6 +1,6 @@
 package servlets;
 /*
-* Обменный курс двух валют
+* Получение конкретного обменного курса
  */
 
 import jakarta.servlet.annotation.WebServlet;
@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.json.JSONObject;
 import params.ParamsCurrency;
 import utility.CurrencyId;
+import utility.UrlDatabase;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -75,7 +76,7 @@ public class ExchangeRateTwoCurrencies extends HttpServlet {
        PreparedStatement preparedStatement = null;
        try {
            Class.forName("org.sqlite.JDBC");
-           connection = DriverManager.getConnection("jdbc:sqlite::resource:CurrencyExchangeDatabase.db");
+           connection = DriverManager.getConnection(UrlDatabase.url);
 
            String sql = "SELECT Rate FROM ExchangeRates WHERE BaseCurrencyId = ? AND TargetCurrencyId = ?";
            preparedStatement = connection.prepareStatement(sql);

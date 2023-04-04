@@ -11,6 +11,7 @@ import org.json.JSONObject;
 import params.ParamsCurrency;
 import params.ParamsExchangeRates;
 import utility.SelectParamsCurrency;
+import utility.UrlDatabase;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -63,7 +64,6 @@ public class ExchangeRates extends HttpServlet{
             String json = jsonId.toString(4);
             out.println(json);
             out.println("---------------------------");
-
         }
     }
 
@@ -71,7 +71,7 @@ public class ExchangeRates extends HttpServlet{
         ArrayList<ParamsExchangeRates> paramsExchangeRates = new ArrayList<>();
         try{
             Class.forName("org.sqlite.JDBC");
-            connection = DriverManager.getConnection("jdbc:sqlite::resource:CurrencyExchangeDatabase.db");
+            connection = DriverManager.getConnection(UrlDatabase.url);
 
             Statement stmt = connection.createStatement();
             ResultSet resSet = stmt.executeQuery("SELECT * FROM ExchangeRates");

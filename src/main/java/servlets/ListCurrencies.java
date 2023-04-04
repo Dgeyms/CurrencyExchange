@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.json.JSONObject;
 import params.ListCurrencyParams;
+import utility.UrlDatabase;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -16,8 +17,6 @@ import java.util.ArrayList;
 
 @WebServlet("/listCurrencies")
 public class ListCurrencies extends HttpServlet {
-    public Connection connection;
-    // Получение данных
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         response.setContentType("application/json");
         response.setCharacterEncoding("utf-8");
@@ -50,7 +49,7 @@ public class ListCurrencies extends HttpServlet {
         ArrayList<ListCurrencyParams> currencies = new ArrayList<>();
         try {
             Class.forName("org.sqlite.JDBC");
-            connection = DriverManager.getConnection("jdbc:sqlite::resource:CurrencyExchangeDatabase.db");
+            connection = DriverManager.getConnection(UrlDatabase.url);
             System.out.println("Connect YES");
 
             stmt = connection.createStatement();

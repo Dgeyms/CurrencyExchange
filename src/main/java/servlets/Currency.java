@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.json.JSONObject;
 import params.ParamsCurrency;
+import utility.UrlDatabase;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -24,11 +25,11 @@ import static java.lang.System.out;
 public class Currency extends HttpServlet {
     private String nameCurrency;
 
-    public String getNameCurrency(String nameCurrency) {
-        return this.nameCurrency = nameCurrency;
+    public void setNameCurrency(String nameCurrency) {
+        this.nameCurrency = nameCurrency;
     }
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        getNameCurrency(request.getParameter("nameCurrency"));
+        setNameCurrency(request.getParameter("nameCurrency"));
 
         response.setContentType("application/json");
         response.setCharacterEncoding("utf-8");
@@ -38,14 +39,18 @@ public class Currency extends HttpServlet {
 
         if (nameCurrency.matches("[A-Z]{3}")) {
             ParamsCurrency selectCurrencyParams = selectCurrencyParams(nameCurrency);
-            JSONObject currencyJSON = new JSONObject();
-            currencyJSON.put("id", selectCurrencyParams.getId());
-            currencyJSON.put("code", selectCurrencyParams.getCode());
-            currencyJSON.put("fullName", selectCurrencyParams.getFullName());
-            currencyJSON.put("sign", selectCurrencyParams.getSign());
+            if(selectCurrencyParams != null){
+                JSONObject currencyJSON = new JSONObject();
+                currencyJSON.put("id", selectCurrencyParams.getId());
+                currencyJSON.put("code", selectCurrencyParams.getCode());
+                currencyJSON.put("fullName", selectCurrencyParams.getFullName());
+                currencyJSON.put("sign", selectCurrencyParams.getSign());
 
-            String jsonString = currencyJSON.toString(4);
-            out.print(jsonString);
+                String jsonString = currencyJSON.toString(4);
+                out.print(jsonString);
+            }else{
+                out.print("Такой валюты нет в базе данных!");
+            }
         }else {
             out.print("Код валюты неправильный! (Пример правильного кода: USD)");
         }
@@ -57,7 +62,7 @@ public class Currency extends HttpServlet {
         ResultSet resSet = null;
         try {
             Class.forName("org.sqlite.JDBC");
-            connection = DriverManager.getConnection("jdbc:sqlite::resource:CurrencyExchangeDatabase.db");
+            connection = DriverManager.getConnection(UrlDatabase.url);
             out.println("Connect YES");
 
             String sql = "SELECT * FROM Currencies WHERE Code = ?";
@@ -87,7 +92,6 @@ public class Currency extends HttpServlet {
             } catch (Exception e) {
                 out.println("Error while closing resources: " + e.getMessage());
             }
-
         }
         return null;
     }

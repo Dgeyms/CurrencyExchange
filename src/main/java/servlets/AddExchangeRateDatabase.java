@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.json.JSONObject;
 import params.ParamsCurrency;
 import utility.CurrencyId;
+import utility.UrlDatabase;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -77,14 +78,20 @@ public class AddExchangeRateDatabase extends HttpServlet {
         PreparedStatement preparedStatement = null;
         try{
             Class.forName("org.sqlite.JDBC");
-            connection = DriverManager.getConnection("jdbc:sqlite::resource:CurrencyExchangeDatabase.db");
+            connection = DriverManager.getConnection(UrlDatabase.url);
 
             String sql = "UPDATE ExchangeRates SET Rate = ? WHERE BaseCurrencyId = ? AND TargetCurrencyId = ?";
             preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setDouble(1, exchangeRate);
             preparedStatement.setInt(2, idBaseCurrency);
             preparedStatement.setInt(3, idTargetCurrency);
-            preparedStatement.executeUpdate();
+            int x = preparedStatement.executeUpdate();
+
+            if (x > 0) {
+                System.out.println("Успешно вставлено");
+            } else {
+                System.out.println("Вставить не удалось");
+            }
 
         }catch(ClassNotFoundException e) {
             e.printStackTrace(); // обработка ошибки  Class.forName
