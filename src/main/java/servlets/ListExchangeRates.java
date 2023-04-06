@@ -2,7 +2,6 @@ package servlets;
 /*
 * Получение списка всех обменных курсов.
  */
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,8 +18,7 @@ import java.sql.*;
 import java.util.ArrayList;
 
 @WebServlet("/exchangeRates")
-public class ExchangeRates extends HttpServlet{
-    Connection connection;
+public class ListExchangeRates extends HttpServlet{
     private int id;
     private ParamsCurrency paramsBase;
     private ParamsCurrency paramsTarget;
@@ -68,13 +66,17 @@ public class ExchangeRates extends HttpServlet{
     }
 
     public ArrayList<ParamsExchangeRates> getExchangeRates(){
+        Connection connection = null;
+        Statement stmt = null;
+        ResultSet resSet = null;
+
         ArrayList<ParamsExchangeRates> paramsExchangeRates = new ArrayList<>();
         try{
             Class.forName("org.sqlite.JDBC");
             connection = DriverManager.getConnection(UrlDatabase.url);
 
-            Statement stmt = connection.createStatement();
-            ResultSet resSet = stmt.executeQuery("SELECT * FROM ExchangeRates");
+            stmt = connection.createStatement();
+            resSet = stmt.executeQuery("SELECT * FROM ExchangeRates");
             while(resSet.next()){
                 int id = resSet.getInt(1);
                 int baseCurrencyId = resSet.getInt(2);
@@ -82,21 +84,27 @@ public class ExchangeRates extends HttpServlet{
                 double rate = resSet.getDouble(4);
                 paramsExchangeRates.add(new ParamsExchangeRates(id, baseCurrencyId, targetCurrencyId, rate));
             }
-            stmt.close();
-            resSet.close();
-
-        } catch (ClassNotFoundException | SQLException e) {
-            throw new RuntimeException("Ошибка при получении списка обменных курсов", e);
+        }catch(ClassNotFoundException e) {
+            e.printStackTrace(); // обработка ошибки  Class.forName
+            System.out.println("JDBC драйвер для СУБД не найден!");
+        } catch (SQLException e) {
+            e.printStackTrace(); // обработка ошибок  DriverManager.getConnection
+            System.out.println("Ошибка SQL!");
+        } finally {
+            try {
+                if (stmt != null) {
+                    stmt.close();
+                }
+                if (connection != null) {
+                    connection.close();
+                }
+                if (resSet != null) {
+                    resSet.close();
+                }
+            } catch (SQLException e) {
+                System.out.println("Error while closing resources: " + e.getMessage());
+            }
         }
         return paramsExchangeRates;
-    }
-    @Override
-    public String toString() {
-        return String.format("{\n" +
-                "\"id\": %l,\n" +
-                "\"baseCurrency\": %s,\n" +
-                "\"targetCurrency\": %s,\n" +
-                "\"rate\": %f\n" +
-                "}", id, paramsBase, paramsTarget, rate);
     }
 }

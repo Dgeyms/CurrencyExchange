@@ -1,7 +1,4 @@
 package servlets;
-/*
-* Добавление нового курса валют в базу данных
- */
 
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -14,14 +11,34 @@ import utility.UrlDatabase;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 
-@WebServlet("/multipart/*")
-public class AddExchangeRateDatabase extends HttpServlet {
+/*
+ * Добавление нового обменного курса в базу
+ */
+@WebServlet("/addNewRate/*")
+public class AddNewExchangeRate extends HttpServlet {
+    private String baseCurrency;
+    private String targetCurrency;
+    private double exchangeRate;
+
+    public void setBaseCurrency(String baseCurrency) {
+        this.baseCurrency = baseCurrency;
+    }
+    public void setTargetCurrency(String targetCurrency) {
+        this.targetCurrency = targetCurrency;
+    }
+    public void setExchangeRate(double exchangeRate) {
+        this.exchangeRate = exchangeRate;
+    }
+
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        String baseCurrency = request.getParameter("baseCurrency");
-        String targetCurrency = request.getParameter("targetCurrency");
-        double exchangeRate = Double.parseDouble(request.getParameter("exchangeRate")); // BigDecimal не поддерживает sqlite.JDBC
+        setBaseCurrency(request.getParameter("baseCurrency"));
+        setTargetCurrency(request.getParameter("targetCurrency"));
+        setExchangeRate(Double.parseDouble(request.getParameter("exchangeRate"))); // BigDecimal не поддерживает sqlite.JDBC
 
         PrintWriter out = response.getWriter();
         response.setContentType("application/json");
@@ -42,7 +59,7 @@ public class AddExchangeRateDatabase extends HttpServlet {
             addNewExchangeRateDatabase(idBaseCurrency, idTargetCurrency, exchangeRate);
 
             ExchangeRateTwoCurrencies exchangeRateTwoCurrencies = new ExchangeRateTwoCurrencies();
-                double newRate =  exchangeRateTwoCurrencies.receivingSpecificCurrencyExchange(idBaseCurrency, idTargetCurrency);
+            double newRate =  exchangeRateTwoCurrencies.receivingSpecificCurrencyExchange(idBaseCurrency, idTargetCurrency);
 
             Currency currency = new Currency();
             ParamsCurrency paramsCurrencyBase = currency.selectCurrencyParams(baseCurrency);
@@ -69,7 +86,7 @@ public class AddExchangeRateDatabase extends HttpServlet {
             out.println(json);
             out.println("---------------------------");
         } else {
-            out.println("Код валюты неправильный! (Пример правильного кода: USD)");
+            out.println("Код валюты неправильный или курс меньше нуля");
         }
     }
 
@@ -80,11 +97,12 @@ public class AddExchangeRateDatabase extends HttpServlet {
             Class.forName("org.sqlite.JDBC");
             connection = DriverManager.getConnection(UrlDatabase.url);
 
-            String sql = "UPDATE ExchangeRates SET Rate = ? WHERE BaseCurrencyId = ? AND TargetCurrencyId = ?";
+            String sql = "INSERT INTO ExchangeRates (BaseCurrencyId, TargetCurrencyId, Rate) VALUES(?, ?, ?)";
+
             preparedStatement = connection.prepareStatement(sql);
-            preparedStatement.setDouble(1, exchangeRate);
-            preparedStatement.setInt(2, idBaseCurrency);
-            preparedStatement.setInt(3, idTargetCurrency);
+            preparedStatement.setInt(1, idBaseCurrency);
+            preparedStatement.setInt(2, idTargetCurrency);
+            preparedStatement.setDouble(3, exchangeRate);
             int x = preparedStatement.executeUpdate();
 
             if (x > 0) {
