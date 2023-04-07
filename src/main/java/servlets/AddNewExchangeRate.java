@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.json.JSONObject;
 import params.ParamsCurrency;
+import utility.CurrencyCheckDatabase;
 import utility.CurrencyId;
 import utility.UrlDatabase;
 
@@ -49,44 +50,48 @@ public class AddNewExchangeRate extends HttpServlet {
             return;
         }
         if (baseCurrency.matches("[A-Z]{3}") && targetCurrency.matches("[A-Z]{3}")) {
-            CurrencyId currencyId = new CurrencyId();
-            int idBaseCurrency = currencyId.getCurrencyId(baseCurrency);
-            int idTargetCurrency = currencyId.getCurrencyId(targetCurrency);
+            if(CurrencyCheckDatabase.checkPresenceCurrency(baseCurrency) && CurrencyCheckDatabase.checkPresenceCurrency(targetCurrency)){
+                CurrencyId currencyId = new CurrencyId();
+                int idBaseCurrency = currencyId.getCurrencyId(baseCurrency);
+                int idTargetCurrency = currencyId.getCurrencyId(targetCurrency);
 
-            out.println("НОВЫЙ ОБМЕННЫЙ КУРС");
-            out.println("---------------------------");
+                out.println("НОВЫЙ ОБМЕННЫЙ КУРС");
+                out.println("---------------------------");
 
-            addNewExchangeRateDatabase(idBaseCurrency, idTargetCurrency, exchangeRate);
+                addNewExchangeRateDatabase(idBaseCurrency, idTargetCurrency, exchangeRate);
 
-            ExchangeRateTwoCurrencies exchangeRateTwoCurrencies = new ExchangeRateTwoCurrencies();
-            double newRate =  exchangeRateTwoCurrencies.receivingSpecificCurrencyExchange(idBaseCurrency, idTargetCurrency);
+                ExchangeRateTwoCurrencies exchangeRateTwoCurrencies = new ExchangeRateTwoCurrencies();
+                double newRate =  exchangeRateTwoCurrencies.receivingSpecificCurrencyExchange(idBaseCurrency, idTargetCurrency);
 
-            Currency currency = new Currency();
-            ParamsCurrency paramsCurrencyBase = currency.selectCurrencyParams(baseCurrency);
-            ParamsCurrency paramsCurrencyTarget = currency.selectCurrencyParams(targetCurrency);
+                Currency currency = new Currency();
+                ParamsCurrency paramsCurrencyBase = currency.selectCurrencyParams(baseCurrency);
+                ParamsCurrency paramsCurrencyTarget = currency.selectCurrencyParams(targetCurrency);
 
-            JSONObject jsonParamsCurrencyBase = new JSONObject();
-            jsonParamsCurrencyBase.put("id", paramsCurrencyBase.getId());
-            jsonParamsCurrencyBase.put("name", paramsCurrencyBase.getFullName());
-            jsonParamsCurrencyBase.put("code", paramsCurrencyBase.getCode());
-            jsonParamsCurrencyBase.put("sing", paramsCurrencyBase.getSign());
+                JSONObject jsonParamsCurrencyBase = new JSONObject();
+                jsonParamsCurrencyBase.put("id", paramsCurrencyBase.getId());
+                jsonParamsCurrencyBase.put("name", paramsCurrencyBase.getFullName());
+                jsonParamsCurrencyBase.put("code", paramsCurrencyBase.getCode());
+                jsonParamsCurrencyBase.put("sing", paramsCurrencyBase.getSign());
 
-            JSONObject jsonParamsCurrencyTarget = new JSONObject();
-            jsonParamsCurrencyTarget.put("id", paramsCurrencyTarget.getId());
-            jsonParamsCurrencyTarget.put("name", paramsCurrencyTarget.getFullName());
-            jsonParamsCurrencyTarget.put("code", paramsCurrencyTarget.getCode());
-            jsonParamsCurrencyTarget.put("sing", paramsCurrencyTarget.getSign());
+                JSONObject jsonParamsCurrencyTarget = new JSONObject();
+                jsonParamsCurrencyTarget.put("id", paramsCurrencyTarget.getId());
+                jsonParamsCurrencyTarget.put("name", paramsCurrencyTarget.getFullName());
+                jsonParamsCurrencyTarget.put("code", paramsCurrencyTarget.getCode());
+                jsonParamsCurrencyTarget.put("sing", paramsCurrencyTarget.getSign());
 
-            JSONObject jsonId = new JSONObject();
-            jsonId.put("baseCurrency", jsonParamsCurrencyBase);
-            jsonId.put("targetCurrency", jsonParamsCurrencyTarget);
-            jsonId.put("rate", newRate);
+                JSONObject jsonId = new JSONObject();
+                jsonId.put("baseCurrency", jsonParamsCurrencyBase);
+                jsonId.put("targetCurrency", jsonParamsCurrencyTarget);
+                jsonId.put("rate", newRate);
 
-            String json = jsonId.toString(4);
-            out.println(json);
-            out.println("---------------------------");
+                String json = jsonId.toString(4);
+                out.println(json);
+                out.println("---------------------------");
+            }else{
+                out.println("Одной из валют нет в базе данных");
+            }
         } else {
-            out.println("Код валюты неправильный или курс меньше нуля");
+            out.println("Код валюты неправильный! (Пример правильного кода: USD)");
         }
     }
 

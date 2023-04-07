@@ -18,10 +18,24 @@ import java.sql.*;
 
 @WebServlet("/multipart/*")
 public class ExchangeRateUpdate extends HttpServlet {
+    private String baseCurrency;
+    private String targetCurrency;
+    private double exchangeRate;
+
+    public void setBaseCurrency(String baseCurrency) {
+        this.baseCurrency = baseCurrency;
+    }
+    public void setTargetCurrency(String targetCurrency) {
+        this.targetCurrency = targetCurrency;
+    }
+    public void setExchangeRate(double exchangeRate) {
+        this.exchangeRate = exchangeRate;
+    }
+
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        String baseCurrency = request.getParameter("baseCurrency");
-        String targetCurrency = request.getParameter("targetCurrency");
-        double exchangeRate = Double.parseDouble(request.getParameter("exchangeRate")); // BigDecimal не поддерживает sqlite.JDBC
+        setBaseCurrency(request.getParameter("baseCurrency"));
+        setTargetCurrency(request.getParameter("targetCurrency"));
+        setExchangeRate(Double.parseDouble(request.getParameter("exchangeRate"))); // BigDecimal не поддерживает sqlite.JDBC
 
         PrintWriter out = response.getWriter();
         response.setContentType("application/json");
