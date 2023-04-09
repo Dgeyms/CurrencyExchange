@@ -108,7 +108,7 @@ public class CurrencyExchange extends HttpServlet {
         ResultSet resSet = null;
         try{
             Class.forName("org.sqlite.JDBC");
-            connection = DriverManager.getConnection(UrlDatabase.url);
+            connection = DriverManager.getConnection(UrlDatabase.urlRelativePath);
 
             preparedStatement = connection.prepareStatement("SELECT Rate FROM ExchangeRates WHERE BaseCurrencyId = ? AND TargetCurrencyId = ?");
             preparedStatement.setInt(1, idBaseCurrency);

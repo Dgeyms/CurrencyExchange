@@ -73,7 +73,7 @@ public class ListExchangeRates extends HttpServlet{
         ArrayList<ParamsExchangeRates> paramsExchangeRates = new ArrayList<>();
         try{
             Class.forName("org.sqlite.JDBC");
-            connection = DriverManager.getConnection(UrlDatabase.url);
+            connection = DriverManager.getConnection(UrlDatabase.urlRelativePath);
 
             stmt = connection.createStatement();
             resSet = stmt.executeQuery("SELECT * FROM ExchangeRates");

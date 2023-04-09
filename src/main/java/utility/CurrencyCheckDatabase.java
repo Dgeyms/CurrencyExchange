@@ -12,7 +12,7 @@ public class CurrencyCheckDatabase {
         ResultSet resSet = null;
         try{
             Class.forName("org.sqlite.JDBC");
-            connection = DriverManager.getConnection(UrlDatabase.url);
+            connection = DriverManager.getConnection(UrlDatabase.urlRelativePath);
 
             preparedStatement = connection.prepareStatement("SELECT Code FROM Currencies WHERE Code = ?");
             preparedStatement.setString(1, codeCurrency);

@@ -14,7 +14,7 @@ public class SelectParamsCurrency {
         ResultSet resSet = null;
         try {
             Class.forName("org.sqlite.JDBC");
-            connection = DriverManager.getConnection("jdbc:sqlite::resource:CurrencyExchangeDatabase.db");
+            connection = DriverManager.getConnection(UrlDatabase.urlRelativePath);
             System.out.println("Connect YES");
 
             String sql = "SELECT * FROM Currencies WHERE ID = ?";

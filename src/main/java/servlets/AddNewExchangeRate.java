@@ -100,7 +100,7 @@ public class AddNewExchangeRate extends HttpServlet {
         PreparedStatement preparedStatement = null;
         try{
             Class.forName("org.sqlite.JDBC");
-            connection = DriverManager.getConnection(UrlDatabase.url);
+            connection = DriverManager.getConnection(UrlDatabase.urlRelativePath);
 
             String sql = "INSERT INTO ExchangeRates (BaseCurrencyId, TargetCurrencyId, Rate) VALUES(?, ?, ?)";
 

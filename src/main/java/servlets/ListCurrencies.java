@@ -49,7 +49,7 @@ public class ListCurrencies extends HttpServlet {
         ArrayList<ListCurrencyParams> currencies = new ArrayList<>();
         try {
             Class.forName("org.sqlite.JDBC");
-            connection = DriverManager.getConnection(UrlDatabase.url);
+            connection = DriverManager.getConnection(UrlDatabase.urlRelativePath);
             System.out.println("Connect YES");
 
             stmt = connection.createStatement();

@@ -62,7 +62,7 @@ public class AddNewCurrencies extends HttpServlet {
         PreparedStatement statement = null;
         try {
             Class.forName("org.sqlite.JDBC");
-            connection = DriverManager.getConnection(UrlDatabase.url);
+            connection = DriverManager.getConnection(UrlDatabase.urlRelativePath);
 
             String sql = "INSERT INTO Currencies (Code, FullName, Sing) VALUES(?, ?, ?)";
             statement = connection.prepareStatement(sql);

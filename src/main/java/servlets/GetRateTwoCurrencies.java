@@ -99,9 +99,11 @@ public class GetRateTwoCurrencies extends HttpServlet {
        PreparedStatement preparedStatement = null;
        try {
            Class.forName("org.sqlite.JDBC");
-           connection = DriverManager.getConnection(UrlDatabase.url);
+           connection = DriverManager.getConnection(UrlDatabase.urlRelativePath);
 
-           String sql = "SELECT Rate FROM ExchangeRates WHERE BaseCurrencyId = ? AND TargetCurrencyId = ?";
+          String sql = "SELECT Rate FROM ExchangeRates WHERE BaseCurrencyId = ? AND TargetCurrencyId = ?";
+
+
            preparedStatement = connection.prepareStatement(sql);
            preparedStatement.setInt(1, idBaseCurrency);
            preparedStatement.setInt(2, idTargetCurrency);

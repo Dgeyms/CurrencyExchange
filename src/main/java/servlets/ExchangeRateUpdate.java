@@ -97,7 +97,7 @@ public class ExchangeRateUpdate extends HttpServlet {
         PreparedStatement preparedStatement = null;
         try{
             Class.forName("org.sqlite.JDBC");
-            connection = DriverManager.getConnection(UrlDatabase.url);
+            connection = DriverManager.getConnection(UrlDatabase.urlRelativePath);
 
             String sql = "UPDATE ExchangeRates SET Rate = ? WHERE BaseCurrencyId = ? AND TargetCurrencyId = ?";
             preparedStatement = connection.prepareStatement(sql);

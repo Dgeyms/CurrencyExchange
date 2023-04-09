@@ -63,7 +63,7 @@ public class Currency extends HttpServlet {
         ResultSet resSet = null;
         try {
             Class.forName("org.sqlite.JDBC");
-            connection = DriverManager.getConnection(UrlDatabase.url);
+            connection = DriverManager.getConnection(UrlDatabase.urlRelativePath);
             out.println("Connect YES");
 
             String sql = "SELECT * FROM Currencies WHERE Code = ?";
