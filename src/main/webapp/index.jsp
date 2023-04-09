@@ -52,13 +52,13 @@
       <input type = "submit" value="Получить список курсов">
   </form>
 
-  <h3>Получение конкретного обменного курса</h3>
+  <h3>Получение обменного курса валют</h3>
   <form method="get" action="exchangeRate/*">
     <table>
       <tr>
-        <td>Введите код первой валюты, в формате (USD)</td>
+        <td>Введите код основной валюты, в формате (USD)</td>
         <td><input type="text" name="baseCurrency"></td>
-        <td>Введите код второй валюты, в формате (USD)</td>
+        <td>Введите код второстепенной валюты, в формате (USD)</td>
         <td><input type="text" name="targetCurrency"></td>
         <td align="right" colspan="2"><input type="submit" value="Отправить"></td>
       </tr>

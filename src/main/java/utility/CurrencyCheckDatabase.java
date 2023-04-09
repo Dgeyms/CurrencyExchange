@@ -20,7 +20,7 @@ public class CurrencyCheckDatabase {
 
             if (resSet.next()) {
                String currency = resSet.getString("Code");
-                if(currency == codeCurrency){
+                if(currency.equals(codeCurrency)){
                     return true;
                 }
             }

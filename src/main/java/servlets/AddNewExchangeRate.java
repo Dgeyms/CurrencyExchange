@@ -60,8 +60,8 @@ public class AddNewExchangeRate extends HttpServlet {
 
                 addNewExchangeRateDatabase(idBaseCurrency, idTargetCurrency, exchangeRate);
 
-                ExchangeRateTwoCurrencies exchangeRateTwoCurrencies = new ExchangeRateTwoCurrencies();
-                double newRate =  exchangeRateTwoCurrencies.receivingSpecificCurrencyExchange(idBaseCurrency, idTargetCurrency);
+                GetRateTwoCurrencies getRateTwoCurrencies = new GetRateTwoCurrencies();
+                double newRate =  getRateTwoCurrencies.receivingSpecificCurrencyExchange(idBaseCurrency, idTargetCurrency);
 
                 Currency currency = new Currency();
                 ParamsCurrency paramsCurrencyBase = currency.selectCurrencyParams(baseCurrency);

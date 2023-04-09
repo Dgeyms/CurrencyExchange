@@ -18,7 +18,7 @@ import java.io.PrintWriter;
 import java.sql.*;
 
 @WebServlet("/exchangeRate/*")
-public class ExchangeRateTwoCurrencies extends HttpServlet {
+public class GetRateTwoCurrencies extends HttpServlet {
     private double exchangeRateTwoCurrencies;
     private String baseCurrency;
     private String targetCurrency;
@@ -93,6 +93,7 @@ public class ExchangeRateTwoCurrencies extends HttpServlet {
     }
 
    public double receivingSpecificCurrencyExchange(int idBaseCurrency, int idTargetCurrency ){
+       System.out.println("idBaseCurrency: " + idBaseCurrency + "idTargetCurrency" + idTargetCurrency);
        Connection connection = null;
        ResultSet resSet = null;
        PreparedStatement preparedStatement = null;
