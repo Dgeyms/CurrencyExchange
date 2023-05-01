@@ -17,9 +17,9 @@ import java.sql.*;
 
 @WebServlet("/addCurrencies")
 public class AddNewCurrencies extends HttpServlet {
-    String getCodeCurrency;
-    String getFullNameCurrency;
-    String getSingCurrency;
+    private String getCodeCurrency;
+    private String getFullNameCurrency;
+    private String getSingCurrency;
     public void setGetCodeCurrency(String getCodeCurrency) {
         this.getCodeCurrency = getCodeCurrency;
     }
